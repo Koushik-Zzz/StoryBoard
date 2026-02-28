@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group cursor-pointer">
             <span className={`font-bold tracking-tight text-gray-900 transition-all ${isScrolled ? 'text-base' : 'text-xl'}`}>
-              FlowBoard
+              StoryBoard
             </span>
           </Link>
 
