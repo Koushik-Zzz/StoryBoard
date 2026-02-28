@@ -75,6 +75,6 @@ class Jobs(APIController):
             "status": "done",
             "job_start_time": "2024-01-01T00:00:00",
             "job_end_time": "2024-01-01T00:00:30",
-            "video_url": "https://storage.googleapis.com/hackwestern_bucket/videos/15826790601517257638/sample_0.mp4"
+            "video_url": "https://storage.googleapis.com/storyboard_bucket/videos/15826790601517257638/sample_0.mp4"
         })
     
