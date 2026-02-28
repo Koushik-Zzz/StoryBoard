@@ -1,0 +1,44 @@
+# render.yaml — Render Blueprint
+# https://docs.render.com/infrastructure-as-code
+
+services:
+  - type: web
+    name: storyboard-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter         # free plan sleeps after inactivity; use starter+ for always-on
+    healthCheckPath: /
+    envVars:
+      # Google (still used for Gemini text generation via vertex_service)
+      - key: GOOGLE_CLOUD_PROJECT
+        sync: false
+      - key: GOOGLE_CLOUD_LOCATION
+        sync: false
+      - key: GOOGLE_GENAI_USE_VERTEXAI
+        sync: false
+      # Cloudflare R2
+      - key: R2_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        sync: false
+      - key: R2_PUBLIC_URL
+        sync: false
+      # fal.ai
+      - key: FAL_KEY
+        sync: false
+      # Redis
+      - key: REDIS_URL
+        sync: false
+      # Supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      # Frontend URL (for CORS in production)
+      - key: FRONTEND_URL
+        sync: false
