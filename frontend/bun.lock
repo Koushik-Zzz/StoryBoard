@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "StoryBoard",
+      "name": "hack-western",
       "dependencies": {
         "react": "^18.3.1",
         "react-dom": "^18.3.1",

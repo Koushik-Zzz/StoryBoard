@@ -80,7 +80,7 @@ const DemoSection: React.FC = () => {
             </span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            StoryBoard parses your hand-drawn context, interprets intent with artificial intelligence, and generates fluid animations.
+            FlowBoard parses your hand-drawn context, interprets intent with artificial intelligence, and generates fluid animations.
           </p>
         </div>
 
