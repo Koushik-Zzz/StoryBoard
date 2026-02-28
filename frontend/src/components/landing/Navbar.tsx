@@ -1,37 +1,140 @@
-import React, { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import * as Dialog from '@radix-ui/react-dialog';
-import { NavItem } from '../../types/types';
+import React, { useEffect, useState } from "react";
+import {
+  Menu,
+  X,
+  LogIn,
+  LogOut,
+  LayoutDashboard,
+  User as UserIcon,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+// import { motion } from "framer-motion";
+import * as Dialog from "@radix-ui/react-dialog";
+import { NavItem } from "../../types/types";
+import { useAuth } from "../../contexts/AuthContext";
+import logoImage from "../../assets/logo.png";
 
 const navItems: NavItem[] = [];
 
 const Navbar: React.FC = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  // Get user's display name
+  const getUserName = () => {
+    if (!user) return "";
+    return (
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.email?.split("@")[0] ||
+      "User"
+    );
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      // Calculate scroll progress from 0 to 1
+      // Start shrinking after 50px, fully shrunk at 275px
+      const scrollStart = 50;
+      const scrollEnd = 500;
+      const scrollY = window.scrollY;
+      
+      if (scrollY < scrollStart) {
+        setScrollProgress(0);
+      } else if (scrollY > scrollEnd) {
+        setScrollProgress(1);
+      } else {
+        // Linear interpolation between scrollStart and scrollEnd
+        setScrollProgress((scrollY - scrollStart) / (scrollEnd - scrollStart));
+      }
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Interpolate values based on scroll progress
+  const interpolate = (start: number, end: number, progress: number) => {
+    return start + (end - start) * progress;
+  };
+
+  // Calculate interpolated values
+  const top = interpolate(0, 16, scrollProgress); // 0px to 16px (top-4)
+  const width = interpolate(100, 90, scrollProgress); // 100% to 90%
+  const maxWidthPx = interpolate(10000, 672, scrollProgress); // Large value (effectively no max) to 672px (max-w-2xl)
+  const paddingY = interpolate(24, 12, scrollProgress); // py-6 (24px) to py-3 (12px)
+  const paddingX = interpolate(32, 24, scrollProgress); // px-8 (32px) to px-6 (24px)
+  const borderRadius = interpolate(0, 9999, scrollProgress); // 0 to full rounded
+  const bgOpacity = interpolate(0, 85, scrollProgress); // 0% to 85%
+  const borderOpacity = interpolate(0, 50, scrollProgress); // 0% to 50%
+  const shadowOpacity = interpolate(0, 10, scrollProgress); // 0% to 10%
+  const backdropBlur = scrollProgress > 0 ? 'blur-md' : 'blur-none';
 
   return (
     <div className="w-full flex justify-center">
+      <style>{`
+        @keyframes popUp {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.05);
+          }
+          100% {
+            transform: scale(1.08);
+          }
+        }
+        .popup-btn:hover {
+          animation: popUp 0.3s ease-out forwards;
+        }
+      `}</style>
       <nav
-        className={`fixed z-50 transition-all duration-1000 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-[width,padding,background,border-radius] ${
-          isScrolled
-            ? 'top-4 w-[90%] max-w-2xl rounded-full bg-white/80 backdrop-blur-xl border border-gray-200 shadow-lg shadow-gray-200/50 py-3 px-6'
-            : 'top-0 w-full bg-transparent border-b border-transparent py-6 px-8'
-        }`}
+        className="fixed z-50 transition-all duration-300 ease-out will-change-transform"
+        style={{
+          top: `${top}px`,
+          width: `${width}%`,
+          maxWidth: `${maxWidthPx}px`,
+          paddingTop: `${paddingY}px`,
+          paddingBottom: `${paddingY}px`,
+          paddingLeft: `${paddingX}px`,
+          paddingRight: `${paddingX}px`,
+          borderRadius: `${borderRadius}px`,
+          backgroundColor: `rgba(255, 255, 255, ${bgOpacity / 100})`,
+          backdropFilter: backdropBlur,
+          border: `1px solid rgba(229, 231, 235, ${borderOpacity / 100})`,
+          boxShadow: `0 20px 25px -5px rgba(0, 0, 0, ${shadowOpacity / 100}), 0 10px 10px -5px rgba(0, 0, 0, ${shadowOpacity / 100})`,
+        }}
       >
         <div className="flex items-center justify-between w-full">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group cursor-pointer">
-            <span className={`font-bold tracking-tight text-gray-900 transition-all ${isScrolled ? 'text-base' : 'text-xl'}`}>
-              FlowBoard
+          <Link
+            to="/"
+            className="flex items-center group cursor-pointer transition-all duration-300"
+            style={{
+              gap: `${interpolate(8, 4, scrollProgress)}px`
+            }}
+          >
+            <img
+              src={logoImage}
+              alt="StoryBoard Logo"
+              className="transition-all duration-300"
+              style={{
+                height: `${interpolate(36, 24, scrollProgress)}px`,
+                width: `${interpolate(36, 24, scrollProgress)}px`
+              }}
+            />
+            <span
+              className="font-bold tracking-tight text-gray-900 transition-all duration-300"
+              style={{
+                fontSize: `${interpolate(24, 18, scrollProgress)}px`
+              }}
+            >
+              <span className="font-orbitron ">S</span>tory{" "}
+              <span className="font-orbitron">B</span>oard
             </span>
           </Link>
 
@@ -48,17 +151,96 @@ const Navbar: React.FC = () => {
             ))}
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
-            <button 
-              onClick={() => navigate('/app')}
-              className={`
-              relative overflow-hidden group bg-black/80 backdrop-blur-md text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-black/10 border border-white/10 cursor-pointer
-              ${isScrolled ? 'px-4 py-1.5 text-xs' : 'px-6 py-2 text-sm'}
-            `}>
-              <span className="relative z-10">Get Started</span>
-              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Desktop Action Buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center gap-2 px-6 py-2 bg-[#FFD700] text-black font-bold font-mono rounded-lg border-2 border-black transition-all duration-200 group cursor-pointer hover:brightness-110 popup-btn"
+              style={{
+                boxShadow: "2px 2px 0 #0f0f0f",
+                fontSize: `${interpolate(14, 12, scrollProgress)}px`
+              }}
+            >
+              <LayoutDashboard
+                style={{
+                  width: `${interpolate(16, 12, scrollProgress)}px`,
+                  height: `${interpolate(16, 12, scrollProgress)}px`
+                }}
+              />
+              <span>Dashboard</span>
             </button>
+            {user ? (
+              <>
+                {/* Profile Button */}
+                <div 
+                  className="flex items-center gap-2 bg-white text-black font-bold font-mono rounded-lg border-2 border-black"
+                  style={{
+                    paddingLeft: `${interpolate(12, 12, scrollProgress)}px`,
+                    paddingRight: `${interpolate(12, 12, scrollProgress)}px`,
+                    paddingTop: `6px`,
+                    paddingBottom: `6px`,
+                    fontSize: `${interpolate(14, 12, scrollProgress)}px`,
+                    boxShadow: "2px 2px 0 #0f0f0f"
+                  }}
+                >
+                  <UserIcon
+                    style={{
+                      width: `${interpolate(16, 12, scrollProgress)}px`,
+                      height: `${interpolate(16, 12, scrollProgress)}px`
+                    }}
+                  />
+                  <span>
+                    {getUserName()}
+                  </span>
+                </div>
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-6 py-2 bg-black text-white font-bold font-mono rounded-lg border-2 border-black transition-all duration-200 group cursor-pointer hover:bg-gray-900 popup-btn"
+                  style={{
+                    fontSize: `${interpolate(14, 12, scrollProgress)}px`,
+                    boxShadow: "2px 2px 0 #0f0f0f"
+                  }}
+                >
+                  <LogOut 
+                    style={{
+                      width: `${interpolate(16, 12, scrollProgress)}px`,
+                      height: `${interpolate(16, 12, scrollProgress)}px`
+                    }}
+                  />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate("/login")}
+                  className="flex items-center gap-2 px-6 py-2 bg-white text-black font-bold font-mono rounded-lg border-2 border-black transition-all duration-200 group cursor-pointer hover:bg-gray-50 popup-btn"
+                  style={{
+                    fontSize: `${interpolate(14, 12, scrollProgress)}px`,
+                    boxShadow: "2px 2px 0 #0f0f0f"
+                  }}
+                >
+                  <LogIn 
+                    style={{
+                      width: `${interpolate(16, 12, scrollProgress)}px`,
+                      height: `${interpolate(16, 12, scrollProgress)}px`
+                    }}
+                  />
+                  <span>Login</span>
+                </button>
+                <button
+                  onClick={() => navigate("/app")}
+                  className="px-8 py-2 bg-[#FFD700] text-black font-bold font-mono rounded-lg border-2 border-black transition-all duration-200 group cursor-pointer hover:brightness-110 popup-btn"
+                  style={{
+                    fontSize: `${interpolate(14, 12, scrollProgress)}px`,
+                    boxShadow: "2px 2px 0 #0f0f0f"
+                  }}
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu using Radix Dialog */}
@@ -73,7 +255,9 @@ const Navbar: React.FC = () => {
                 <Dialog.Overlay className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
                 <Dialog.Content className="fixed z-50 right-0 top-0 bottom-0 w-3/4 max-w-xs bg-white p-6 shadow-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right duration-300 ease-in-out border-l border-gray-100">
                   <div className="flex justify-between items-center mb-8">
-                    <span className="font-bold text-xl text-gray-900">Menu</span>
+                    <span className="font-bold text-xl text-gray-900">
+                      Menu
+                    </span>
                     <Dialog.Close asChild>
                       <button className="text-gray-500 hover:text-black p-2 rounded-full hover:bg-gray-100">
                         <X className="w-5 h-5" />
@@ -85,19 +269,60 @@ const Navbar: React.FC = () => {
                       <Dialog.Close key={item.label} asChild>
                         <a
                           href={item.href}
-                          className="text-lg font-medium text-gray-600 hover:text-indigo-600 transition-colors"
+                          className="text-lg font-medium text-gray-600 hover:text-brand-pink transition-colors"
                         >
                           {item.label}
                         </a>
                       </Dialog.Close>
                     ))}
-                    <button 
-                      onClick={() => {
-                        navigate('/app');
-                      }}
-                      className="w-full py-3 bg-black text-white font-bold rounded-xl mt-4 shadow-lg hover:bg-gray-900 transition-colors cursor-pointer">
-                      Get Started
-                    </button>
+                    <Dialog.Close asChild>
+                      <button
+                        onClick={() => navigate("/dashboard")}
+                        className="w-full py-3 bg-[#FFD700] border-2 border-black text-black font-bold font-mono rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 hover:brightness-110 popup-btn"
+                        style={{ boxShadow: "2px 2px 0 #0f0f0f" }}
+                      >
+                        <LayoutDashboard className="w-5 h-5" />
+                        Dashboard
+                      </button>
+                    </Dialog.Close>
+                    {user ? (
+                      <>
+                        <div className="w-full py-3 bg-white border-2 border-black text-black font-bold font-mono rounded-lg flex items-center justify-center gap-2" style={{ boxShadow: "2px 2px 0 #0f0f0f" }}>
+                          <UserIcon className="w-5 h-5" />
+                          {getUserName()}
+                        </div>
+                        <Dialog.Close asChild>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full py-3 bg-black border-2 border-black text-white font-bold font-mono rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-900 popup-btn"
+                            style={{ boxShadow: "2px 2px 0 #0f0f0f" }}
+                          >
+                            <LogOut className="w-5 h-5" />
+                            Logout
+                          </button>
+                        </Dialog.Close>
+                      </>
+                    ) : (
+                      <>
+                        <Dialog.Close asChild>
+                          <button
+                            onClick={() => navigate("/login")}
+                            className="w-full py-3 bg-white border-2 border-black text-black font-bold font-mono rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-50 popup-btn"
+                            style={{ boxShadow: "2px 2px 0 #0f0f0f" }}
+                          >
+                            <LogIn className="w-5 h-5" />
+                            Login
+                          </button>
+                        </Dialog.Close>
+                        <button
+                          onClick={() => navigate("/app")}
+                          className="w-full py-3 bg-[#FFD700] border-2 border-black text-black font-bold font-mono rounded-lg mt-4 transition-colors cursor-pointer hover:brightness-110 popup-btn"
+                          style={{ boxShadow: "2px 2px 0 #0f0f0f" }}
+                        >
+                          Get Started
+                        </button>
+                      </>
+                    )}
                   </div>
                 </Dialog.Content>
               </Dialog.Portal>
