@@ -8,7 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { TutorialSlideshow } from "./StoryBoardTutorial";
+import { TutorialSlideshow } from "./FlowboardTutorial";
 import { useAuth } from "../../contexts/AuthContext";
 
 export const CanvasNavigationMenu: React.FC<{
