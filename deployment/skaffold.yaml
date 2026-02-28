@@ -1,7 +1,7 @@
 apiVersion: skaffold/v4beta7
 kind: Config
 metadata:
-  name: storyboard
+  name: hack-western
 build:
   artifacts:
   - image: backend-image

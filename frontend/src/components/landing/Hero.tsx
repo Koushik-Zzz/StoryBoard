@@ -21,7 +21,7 @@ const Hero: React.FC = () => {
         </h1>
 
         <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-          Create a storyboard by drawing instructions on any image. StoryBoard turns your rough sketches into context-aware video clips that extend infinitely.
+          Create a storyboard by drawing instructions on any image. FlowBoard turns your rough sketches into context-aware video clips that extend infinitely.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

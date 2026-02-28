@@ -15,7 +15,7 @@ export default function Canvas() {
       <Tldraw 
         onMount={handleMount} 
         shapeUtils={customShapeUtils}
-        persistenceKey="storyboard-canvas-v1"
+        persistenceKey="hack-western-canvas-v1"
       >
         <ArrowActionMenu />
       </Tldraw>
