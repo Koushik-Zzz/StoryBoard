@@ -42,7 +42,7 @@ const FrameOverlay = ({ shapeId }: { shapeId: string }) => {
 
   return createPortal(
     <div
-      className="animate-blur-pulse"
+      className="frame-loading-overlay"
       style={{
         position: "fixed",
         top: bounds.y,
@@ -52,7 +52,16 @@ const FrameOverlay = ({ shapeId }: { shapeId: string }) => {
         zIndex: 0,
         pointerEvents: "none",
       }}
-    />,
+    >
+      <span className="generating-text">
+        Generating
+        <span className="generating-dots">
+          <span className="generating-dot"></span>
+          <span className="generating-dot"></span>
+          <span className="generating-dot"></span>
+        </span>
+      </span>
+    </div>,
     tldrawContainer || document.body,
   );
 };

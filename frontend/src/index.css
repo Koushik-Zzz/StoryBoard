@@ -179,32 +179,65 @@ button[data-testid="action.back-to-content"],
   transform: none !important;
 }
 
-/* Blur Pulse Animation */
-@keyframes blur-pulse {
-  0% {
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    background: rgba(255, 255, 255, 0);
+/* Frame Loading Overlay */
+.frame-loading-overlay {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Generating Text Animation */
+.generating-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+@keyframes dot-bounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
   }
-  50% {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(
-      226,
-      232,
-      240,
-      0.5
-    ); /* Slight gray/blue tint to be visible on white */
-  }
-  100% {
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    background: rgba(255, 255, 255, 0);
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
   }
 }
 
-.animate-blur-pulse {
-  animation: blur-pulse 2s ease-in-out infinite;
+.generating-dots {
+  display: flex;
+  gap: 3px;
+  margin-left: 2px;
+}
+
+.generating-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #1a1a1a;
+  border-radius: 50%;
+  animation: dot-bounce 1.4s ease-in-out infinite;
+}
+
+.generating-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.generating-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.generating-dot:nth-child(3) {
+  animation-delay: 0.4s;
 }
 
 /* video editor */
