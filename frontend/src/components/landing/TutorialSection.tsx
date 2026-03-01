@@ -17,39 +17,33 @@ export const TutorialContent: React.FC<TutorialContentProps> = ({
     {
       title: "Welcome to Storyboard",
       description: "Create beautiful animations in minutes on our canvas",
-      videoUrl: "/demo/tutorial0.mp4",
+      videoUrl: "/demo/test_1 - Trim.mp4",
       tip: "Get started by exploring the canvas!",
     },
     {
       title: "Upload an image and annotate",
       description: "Select any image—use our canvas to annotate edits",
-      videoUrl: "/demo/tutorial1.mp4",
+      videoUrl: "/demo/test_2.mp4",
       tip: "Circle areas of the image and write edits!",
     },
     {
       title: "Or draw from scratch",
       description: "Create your own world—use our tools to draw sketches",
-      videoUrl: "/demo/tutorial2.mp4",
+      videoUrl: "/demo/test_3.mp4",
       tip: "Use the improve frame button to enhance sketches!",
     },
     {
       title: "Prompt and generate",
       description: "Craft a prompt and then generate the next frame",
-      videoUrl: "/demo/tutorial3.mp4",
+      videoUrl: "/demo/test_4.mp4",
       tip: "Make sure the prompt is accurate to what you want to animate!",
     },
     {
       title: "Create a whole story",
       description:
         "Continue iterating over the last frame of the previous frame—create a storyboard tree.",
-      videoUrl: "/demo/tutorial4.mp4",
+      videoUrl: "/demo/test_5.mp4",
       tip: "Our global context handles the transitions!",
-    },
-    {
-      title: "Merge and export",
-      description: "You're all set! Select a frame and merge",
-      videoUrl: "/demo/tutorial5.mp4",
-      tip: "The algorithm merges the whole story—from beginning to the selected frame!",
     },
   ];
 
