@@ -51,8 +51,35 @@ const FrameOverlay = ({ shapeId }: { shapeId: string }) => {
         height: bounds.h,
         zIndex: 0,
         pointerEvents: "none",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
-    />,
+    >
+      <div
+        style={{
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
+          padding: "12px 24px",
+          borderRadius: "12px",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+        }}
+      >
+        <span style={{ fontSize: "24px" }}>✨</span>
+        <span
+          style={{
+            fontSize: "18px",
+            fontWeight: 600,
+            color: "#4a5568",
+            fontFamily: "system-ui, sans-serif",
+          }}
+        >
+          Generating...
+        </span>
+      </div>
+    </div>,
     tldrawContainer || document.body,
   );
 };

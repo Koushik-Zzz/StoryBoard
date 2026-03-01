@@ -179,32 +179,9 @@ button[data-testid="action.back-to-content"],
   transform: none !important;
 }
 
-/* Blur Pulse Animation */
-@keyframes blur-pulse {
-  0% {
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    background: rgba(255, 255, 255, 0);
-  }
-  50% {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    background: rgba(
-      226,
-      232,
-      240,
-      0.5
-    ); /* Slight gray/blue tint to be visible on white */
-  }
-  100% {
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    background: rgba(255, 255, 255, 0);
-  }
-}
-
+/* Simple Loading Overlay - no animation, just a static tint */
 .animate-blur-pulse {
-  animation: blur-pulse 2s ease-in-out infinite;
+  background: rgba(180, 200, 220, 0.3);
 }
 
 /* video editor */
