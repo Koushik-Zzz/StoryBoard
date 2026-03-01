@@ -38,7 +38,7 @@ export const VideoGenerationManager = () => {
         }
 
         // Start a new interval for this specific job
-        const backend_url = import.meta.env.VITE_BACKEND_URL || "";
+        const backend_url = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
         const pollInterval = window.setInterval(async () => {
           try {

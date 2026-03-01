@@ -339,7 +339,7 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
         return;
       }
 
-      const backend_url = import.meta.env.VITE_BACKEND_URL;
+      const backend_url = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
       console.log("[Improve Frame] Sending to backend:", `${backend_url}/api/gemini/image`);
 
       const formData = new FormData();
@@ -521,7 +521,7 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
 
     editor.select(shapeId);
 
-    const backend_url = import.meta.env.VITE_BACKEND_URL || "";
+    const backend_url = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
     const formData = new FormData();
     formData.append("custom_prompt", promptText);

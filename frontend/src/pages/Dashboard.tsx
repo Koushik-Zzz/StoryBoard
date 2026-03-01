@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
-const backend_url = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const backend_url = (import.meta.env.VITE_BACKEND_URL || "http://localhost:8000").replace(/\/+$/, "");
 
 function Dashboard() {
   const navigate = useNavigate();

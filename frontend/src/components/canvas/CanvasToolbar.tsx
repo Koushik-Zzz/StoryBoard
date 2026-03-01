@@ -135,7 +135,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
 
     // Call backend API to merge videos
     setIsMerging(true);
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl = (import.meta.env.VITE_BACKEND_URL || "").replace(/\/+$/, "");
 
     try {
       const response = await apiFetch(`${backendUrl}/api/jobs/video/merge`, {
