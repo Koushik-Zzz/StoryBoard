@@ -143,9 +143,19 @@ class JobService:
             # debug stuff
             print(f"Error processing video job {job_id}: {e}")
             traceback.print_exc()
+            
+            # Parse error for user-friendly message
+            error_str = str(e)
+            if "no_media_generated" in error_str:
+                user_error = "The AI couldn't generate this video. Try a different drawing or prompt - avoid content that might seem unsafe (falling, violence, etc.)"
+            elif "safety" in error_str.lower() or "content" in error_str.lower():
+                user_error = "Content was flagged by safety filters. Please try different content."
+            else:
+                user_error = error_str
+            
             error_job = {
                 "status": "error",
-                "error": str(e),
+                "error": user_error,
                 "job_start_time": datetime.now().isoformat()
             }
             self.redis_client.delete(f"job:{job_id}:pending")

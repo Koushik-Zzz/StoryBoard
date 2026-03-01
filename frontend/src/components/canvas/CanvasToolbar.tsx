@@ -1,5 +1,9 @@
-import React from "react";
-import { Editor } from "tldraw";
+import React, { useState } from "react";
+import { Editor, TLShapeId } from "tldraw";
+import { toast } from "sonner";
+import { Button, Flex, Tooltip } from "@radix-ui/themes";
+import { Eraser, Video, Loader2 } from "lucide-react";
+import { apiFetch } from "../../utils/api";
 
 interface CanvasToolbarProps {
   onClear: () => void;
@@ -7,15 +11,59 @@ interface CanvasToolbarProps {
 }
 
 export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onClear: _onClear,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  editorRef: _editorRef,
+  onClear,
+  editorRef,
 }) => {
-  /*
-  // Preserved for future use
-  const frameGraph = useFrameGraphContext();
   const [isMerging, setIsMerging] = useState(false);
+
+  /**
+   * Find the path of arrows from root to the selected frame
+   * by tracing back through arrow bindings
+   */
+  const findArrowPathToFrame = (editor: Editor, targetFrameId: TLShapeId): TLShapeId[] => {
+    const arrowPath: TLShapeId[] = [];
+    let currentFrameId: TLShapeId | null = targetFrameId;
+    const visited = new Set<string>();
+
+    // Trace backwards from target frame to root
+    while (currentFrameId && !visited.has(currentFrameId)) {
+      visited.add(currentFrameId);
+      
+      // Find arrow that ends at this frame
+      const arrows = editor.getCurrentPageShapes().filter(s => s.type === "arrow");
+      let foundArrow = false;
+      
+      for (const arrow of arrows) {
+        const bindings = editor.getBindingsInvolvingShape(arrow.id);
+        const endBinding = bindings.find(
+          (b: any) => b.fromId === arrow.id && b.props.terminal === "end"
+        );
+        
+        if (endBinding && (endBinding as any).toId === currentFrameId) {
+          // Found an arrow pointing to this frame
+          arrowPath.unshift(arrow.id);
+          
+          // Find where this arrow starts from
+          const startBinding = bindings.find(
+            (b: any) => b.fromId === arrow.id && b.props.terminal === "start"
+          );
+          
+          if (startBinding) {
+            currentFrameId = (startBinding as any).toId;
+            foundArrow = true;
+            break;
+          }
+        }
+      }
+      
+      if (!foundArrow) {
+        // No more arrows pointing to this frame - we've reached the root
+        break;
+      }
+    }
+
+    return arrowPath;
+  };
 
   const handleMergeVideos = async () => {
     if (!editorRef.current) {
@@ -38,41 +86,50 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       return;
     }
 
-    // Get the path from root to the selected frame (reverse traversal)
-    const path = frameGraph.getFramePath(selectedFrame.id);
+    // Find all arrows in the path from root to selected frame
+    const arrowPath = findArrowPathToFrame(editor, selectedFrame.id);
+    
+    console.log("[Merge] Found arrow path:", arrowPath);
 
-    if (path.length === 0) {
-      toast.error("No path found for the selected frame.");
+    if (arrowPath.length === 0) {
+      toast.error("No arrows found leading to this frame. Is this a root frame?");
       return;
     }
 
     // Collect video URLs from arrows in the path
-    // The path is ordered from root to selected frame, so videoUrls will be in correct order
     const videoUrls: string[] = [];
+    let arrowsWithoutVideo = 0;
 
-    // Traverse the path (skip the root frame, start from the first child)
-    for (let i = 1; i < path.length; i++) {
-      const node = path[i];
-
-      // Get the arrow for this node
-      if (node.arrowId) {
-        const arrow = editor.getShape(node.arrowId);
-        if (arrow && arrow.type === "arrow") {
-          const videoUrl = arrow.meta?.videoUrl as string | undefined;
-          if (videoUrl && arrow.meta?.status === "done") {
-            videoUrls.push(videoUrl);
-          }
+    for (const arrowId of arrowPath) {
+      const arrow = editor.getShape(arrowId);
+      if (arrow && arrow.type === "arrow") {
+        const videoUrl = arrow.meta?.videoUrl as string | undefined;
+        const status = arrow.meta?.status as string | undefined;
+        console.log(`[Merge] Arrow ${arrowId}: status=${status}, hasUrl=${!!videoUrl}`);
+        
+        if (videoUrl && status === "done") {
+          videoUrls.push(videoUrl);
+        } else {
+          arrowsWithoutVideo++;
         }
       }
     }
 
     if (videoUrls.length === 0) {
-      toast.error("No videos found in the path from root to selected frame.");
+      if (arrowsWithoutVideo > 0) {
+        toast.error(`Found ${arrowsWithoutVideo} arrow(s) but none have completed videos. Generate videos first!`);
+      } else {
+        toast.error("No arrows found in the path.");
+      }
       return;
     }
 
     if (videoUrls.length < 2) {
-      toast.error("At least 2 videos are required for merging.");
+      if (arrowsWithoutVideo > 0) {
+        toast.error(`Only ${videoUrls.length} video ready. ${arrowsWithoutVideo} arrow(s) still need videos generated.`);
+      } else {
+        toast.error(`Only ${videoUrls.length} video in path. Select a frame further down the chain (need 2+ arrows with videos).`);
+      }
       return;
     }
 
@@ -135,17 +192,19 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       setIsMerging(false);
     }
   };
-  */
 
-  // Commented out for clean canvas - toolbar hidden
-  return null;
-  /*
   return (
     <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50">
       <Flex
         gap="3"
         p="2"
-        className="rounded-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.08)] backdrop-blur-xl bg-white/40"
+        style={{
+          background: "rgba(255, 255, 255, 0.7)",
+          backdropFilter: "blur(12px)",
+          border: "2px solid rgba(167, 139, 250, 0.4)",
+          boxShadow: "0 8px 32px rgba(167, 139, 250, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.8) inset",
+          borderRadius: "20px",
+        }}
       >
         <Tooltip content="Clear Canvas">
           <Button
@@ -154,11 +213,12 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
             onClick={onClear}
             style={{
               cursor: "pointer",
-              background: "rgba(255, 255, 255, 0.4)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255, 255, 255, 0.6)",
+              background: "linear-gradient(135deg, rgba(254, 202, 202, 0.6), rgba(252, 165, 165, 0.6))",
+              border: "2px solid rgba(248, 113, 113, 0.3)",
+              borderRadius: "12px",
+              fontWeight: 600,
             }}
-            className="hover:bg-white/60 transition-all"
+            className="hover:scale-105 transition-all"
           >
             <Eraser size={16} />
             Clear
@@ -173,18 +233,20 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
             disabled={isMerging}
             style={{
               cursor: isMerging ? "not-allowed" : "pointer",
-              background: "rgba(255, 255, 255, 0.4)",
-              backdropFilter: "blur(12px)",
-              border: "1px solid rgba(255, 255, 255, 0.6)",
+              background: isMerging 
+                ? "rgba(200, 200, 200, 0.6)"
+                : "linear-gradient(135deg, rgba(167, 243, 208, 0.6), rgba(52, 211, 153, 0.6))",
+              border: "2px solid rgba(52, 211, 153, 0.3)",
+              borderRadius: "12px",
+              fontWeight: 600,
             }}
-            className="hover:bg-white/60 transition-all"
+            className="hover:scale-105 transition-all"
           >
-            {isMerging ? <Spinner size="1" /> : <Video size={16} />}
-            {isMerging ? "Merging..." : "Merge Videos"}
+            {isMerging ? <Loader2 size={16} className="animate-spin" /> : <Video size={16} />}
+            {isMerging ? "Creating Magic..." : "Merge Videos"}
           </Button>
         </Tooltip>
       </Flex>
     </div>
   );
-  */
 };

@@ -10,7 +10,7 @@ import {
 
 const SEED_META_TAG = "StoryBoard-default-seed-v1";
 
-const GITHUB_URL = "https://github.com/austinjiann/StoryBoard";
+const GITHUB_URL = "https://github.com/Koushik-Zzz/StoryBoard";
 const DEVPOST_URL = "https://devpost.com/software/StoryBoard-bdpqzg";
 
 // Array of default images to insert (commented out for clean storyboard)

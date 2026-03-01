@@ -21,7 +21,7 @@ const GitHubButton = () => {
   return (
     <button
       onClick={() =>
-        window.open("https://github.com/austinjiann/StoryBoard", "_blank")
+        window.open("https://github.com/Koushik-Zzz/StoryBoard", "_blank")
       }
       className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
       style={{ width: "100%" }}

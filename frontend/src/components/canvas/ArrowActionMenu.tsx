@@ -120,13 +120,16 @@ export const ArrowActionMenu = () => {
               onPointerDown={(e) => e.stopPropagation()}
             >
               <div
-                className="flex items-center justify-center px-6 py-4 bg-white rounded-lg shadow-lg border-2 border-black"
+                className="generating-text"
                 style={{ minWidth: "220px", whiteSpace: "nowrap" }}
               >
-                <Spinner size="3" />
-                <span className="ml-3 font-semibold text-xl">
-                  Generating... {arrowInfo.timer || 0}s
+                <span>Creating Magic</span>
+                <span className="generating-dots">
+                  <span className="generating-dot"></span>
+                  <span className="generating-dot"></span>
+                  <span className="generating-dot"></span>
                 </span>
+                <span className="ml-2 text-sm opacity-70">{arrowInfo.timer || 0}s</span>
               </div>
             </div>
           );
@@ -146,8 +149,14 @@ export const ArrowActionMenu = () => {
               }}
               onPointerDown={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-center px-4 py-2 bg-red-50 rounded-lg shadow-lg border-2 border-red-500">
-                <span className="font-semibold text-red-600">Error ✗</span>
+              <div 
+                className="flex items-center justify-center px-5 py-3 rounded-2xl shadow-lg"
+                style={{
+                  background: "linear-gradient(135deg, rgba(254, 202, 202, 0.95), rgba(252, 165, 165, 0.95))",
+                  border: "2px solid rgba(248, 113, 113, 0.4)"
+                }}
+              >
+                <span className="font-semibold text-red-600">Oops! Try again ✨</span>
               </div>
             </div>
           );

@@ -2,7 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import { useDeploymentNotice } from "../contexts/DeploymentNoticeContext";
 
-const GITHUB_REPO = "https://github.com/austinjiann/StoryBoard";
+const GITHUB_REPO = "https://github.com/Koushik-Zzz/StoryBoard";
 
 const builders = [
   { name: "James", url: "https://www.linkedin.com/in/jamessli/" },

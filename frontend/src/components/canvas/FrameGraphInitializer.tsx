@@ -13,6 +13,24 @@ export const FrameGraphInitializer = () => {
   useEffect(() => {
     if (!editor) return;
 
+    // Clean up any stale isImproving flags from frames
+    // (can happen if page was refreshed during generation)
+    const allShapes = editor.getCurrentPageShapes();
+    const framesToClean = allShapes.filter(
+      (shape) => shape.type === "aspect-frame" && shape.meta?.isImproving === true
+    );
+    
+    if (framesToClean.length > 0) {
+      editor.updateShapes(
+        framesToClean.map((frame) => ({
+          id: frame.id,
+          type: "aspect-frame",
+          meta: { ...frame.meta, isImproving: false },
+        }))
+      );
+      console.log(`[FrameGraphInitializer] Cleaned up ${framesToClean.length} stale isImproving flags`);
+    }
+
     // Reconstruct graph from existing frames and arrows
     frameGraph.reconstructGraph();
 
