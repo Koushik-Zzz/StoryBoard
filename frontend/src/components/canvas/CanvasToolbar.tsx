@@ -1,10 +1,5 @@
-import React, { useState } from "react";
-import { Button, Flex, Tooltip, Spinner } from "@radix-ui/themes";
-import { Eraser, Video } from "lucide-react";
+import React from "react";
 import { Editor } from "tldraw";
-import { toast } from "sonner";
-import { useFrameGraphContext } from "../../contexts/FrameGraphContext";
-import { apiFetch } from "../../utils/api";
 
 interface CanvasToolbarProps {
   onClear: () => void;
@@ -12,9 +7,13 @@ interface CanvasToolbarProps {
 }
 
 export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
-  onClear,
-  editorRef,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onClear: _onClear,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  editorRef: _editorRef,
 }) => {
+  /*
+  // Preserved for future use
   const frameGraph = useFrameGraphContext();
   const [isMerging, setIsMerging] = useState(false);
 
@@ -136,6 +135,7 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       setIsMerging(false);
     }
   };
+  */
 
   // Commented out for clean canvas - toolbar hidden
   return null;
