@@ -175,7 +175,8 @@ export const useCanvas = () => {
         targetFrameId = createFrame(editor);
       }
       if (targetFrameId) {
-        seedDefaultStoryboard(editor, targetFrameId);
+        // Default canvas seeding disabled for cleaner experience
+        // seedDefaultStoryboard(editor, targetFrameId);
         focusCameraOnFrame(editor, targetFrameId, focusOpts);
       }
     },
