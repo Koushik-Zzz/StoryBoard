@@ -198,7 +198,6 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
       <Flex
         gap="3"
         p="3"
-        gap="3"
         style={{
           background: "#FFF9E3",
           border: "3px solid #2D3047",

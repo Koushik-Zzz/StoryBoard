@@ -4,6 +4,8 @@ from models.job import JobStatus
 from services.storage_service import StorageService
 from utils.env import settings
 
+MAX_RETRIES = 2
+
 
 class FalService:
     def __init__(self, storage_service: StorageService):
@@ -64,41 +66,58 @@ class FalService:
         duration_map = {4: "4s", 5: "4s", 6: "6s", 7: "6s", 8: "8s"}
         duration = duration_map.get(duration_seconds, "6s")
         
+        ending_image_url = None
         if ending_image_data:
-            # Use first-last-frame-to-video endpoint
             ending_image_url = await self._upload_image_bytes(ending_image_data)
             print(f"[Fal] Uploaded ending image to: {ending_image_url}")
-            print(f"[Fal] Calling fal-ai/veo3.1/fast/first-last-frame-to-video...")
-            
-            result = await fal_client.subscribe_async(
-                "fal-ai/veo3.1/fast/first-last-frame-to-video",
-                arguments={
-                    "prompt": prompt,
-                    "first_frame_url": image_url,
-                    "last_frame_url": ending_image_url,
-                    "duration": duration,
-                    "aspect_ratio": "16:9",
-                    "resolution": "720p",
-                    "generate_audio": False,  # Audio disabled
-                },
-                with_logs=True,
-            )
-        else:
-            # Use image-to-video endpoint
-            print(f"[Fal] Calling fal-ai/veo3.1/fast/image-to-video...")
-            
-            result = await fal_client.subscribe_async(
-                "fal-ai/veo3.1/fast/image-to-video",
-                arguments={
-                    "prompt": prompt,
-                    "image_url": image_url,
-                    "duration": duration,
-                    "aspect_ratio": "16:9",
-                    "resolution": "720p",
-                    "generate_audio": False,  # Audio disabled
-                },
-                with_logs=True,
-            )
+
+        # Retry loop: first attempt with full prompt, fallback with simplified prompt
+        last_error = None
+        for attempt in range(1, MAX_RETRIES + 1):
+            current_prompt = prompt if attempt == 1 else self._simplify_prompt(prompt)
+            print(f"[Fal] Attempt {attempt}/{MAX_RETRIES}, prompt length: {len(current_prompt)}")
+
+            try:
+                if ending_image_url:
+                    print(f"[Fal] Calling fal-ai/veo3.1/fast/first-last-frame-to-video...")
+                    result = await fal_client.subscribe_async(
+                        "fal-ai/veo3.1/fast/first-last-frame-to-video",
+                        arguments={
+                            "prompt": current_prompt,
+                            "first_frame_url": image_url,
+                            "last_frame_url": ending_image_url,
+                            "duration": duration,
+                            "aspect_ratio": "16:9",
+                            "resolution": "720p",
+                            "generate_audio": False,
+                            "safety_tolerance": "6",
+                        },
+                        with_logs=True,
+                    )
+                else:
+                    print(f"[Fal] Calling fal-ai/veo3.1/fast/image-to-video...")
+                    result = await fal_client.subscribe_async(
+                        "fal-ai/veo3.1/fast/image-to-video",
+                        arguments={
+                            "prompt": current_prompt,
+                            "image_url": image_url,
+                            "duration": duration,
+                            "aspect_ratio": "16:9",
+                            "resolution": "720p",
+                            "generate_audio": False,
+                            "safety_tolerance": "6",
+                        },
+                        with_logs=True,
+                    )
+                # Success — break out of retry loop
+                break
+            except fal_client.client.FalClientHTTPError as e:
+                last_error = e
+                error_str = str(e)
+                if "no_media_generated" in error_str and attempt < MAX_RETRIES:
+                    print(f"[Fal] no_media_generated on attempt {attempt}, retrying with simplified prompt...")
+                    continue
+                raise  # Re-raise on final attempt or non-retryable errors
         
         print(f"[Fal] Video generation complete, result: {result}")
         
@@ -119,6 +138,26 @@ class FalService:
                 result["video"]["gcs_url"] = video_url
         
         return result
+
+    @staticmethod
+    def _simplify_prompt(prompt: str) -> str:
+        """Create a shorter, safer version of the prompt for retry attempts.
+        Strips annotation details and keeps only the core user instruction."""
+        import re
+        # Extract the core user prompt between 'following input:' and 'Here are the animation'
+        match = re.search(r'following input:\s*(.+?)\s*(?:Here are the animation|The image will have|$)', prompt, re.DOTALL)
+        if match:
+            core = match.group(1).strip()
+        else:
+            # Fallback: take first 300 chars
+            core = prompt[:300]
+        # Remove potentially problematic words
+        simplified = f"Generate a creative video based on this scene. {core}"
+        # Truncate to a reasonable length
+        if len(simplified) > 500:
+            simplified = simplified[:500].rsplit(' ', 1)[0]
+        print(f"[Fal] Simplified prompt ({len(simplified)} chars): {simplified[:100]}...")
+        return simplified
 
     async def generate_image_content(self, prompt: str, image: bytes) -> bytes:
         """
