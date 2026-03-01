@@ -1,21 +1,26 @@
 import asyncio
+import logging
 import time
 from services.storage_service import StorageService
 import uuid
 import shutil
 
+logger = logging.getLogger(__name__)
+
 class VideoMergeService:
     def __init__(self, storage_service: StorageService):
         self.storage_service = storage_service
+        self.ffmpeg_available = True
         # Check if ffmpeg is available
         self._check_ffmpeg()
 
     def _check_ffmpeg(self):
         """Check if ffmpeg is available in the system."""
         if not shutil.which("ffmpeg"):
-            raise RuntimeError(
+            self.ffmpeg_available = False
+            logger.warning(
                 "ffmpeg is not installed or not in PATH. "
-                "Please install ffmpeg to use video merging functionality."
+                "Video merging functionality will be unavailable."
             )
 
     async def merge_videos(self, video_urls: list[str], user_id: str) -> str:
@@ -30,6 +35,12 @@ class VideoMergeService:
         Returns:
             Public URL of the merged video
         """
+        if not self.ffmpeg_available:
+            raise RuntimeError(
+                "ffmpeg is not installed or not in PATH. "
+                "Please install ffmpeg to use video merging functionality."
+            )
+
         start_time = time.time()
         print(f"[VIDEO MERGE] Starting merge for user {user_id}: {len(video_urls)} videos")
         
