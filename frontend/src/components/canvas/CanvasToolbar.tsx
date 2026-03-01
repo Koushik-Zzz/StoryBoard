@@ -197,53 +197,58 @@ export const CanvasToolbar: React.FC<CanvasToolbarProps> = ({
     <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50">
       <Flex
         gap="3"
-        p="2"
+        p="3"
+        gap="3"
         style={{
-          background: "rgba(255, 255, 255, 0.7)",
-          backdropFilter: "blur(12px)",
-          border: "2px solid rgba(167, 139, 250, 0.4)",
-          boxShadow: "0 8px 32px rgba(167, 139, 250, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.8) inset",
-          borderRadius: "20px",
+          background: "#FFF9E3",
+          border: "3px solid #2D3047",
+          boxShadow: "4px 4px 0 #2D3047",
+          borderRadius: "16px",
         }}
       >
-        <Tooltip content="Clear Canvas">
+        <Tooltip content="Start fresh with a clean canvas!">
           <Button
             variant="surface"
-            color="red"
             onClick={onClear}
             style={{
               cursor: "pointer",
-              background: "linear-gradient(135deg, rgba(254, 202, 202, 0.6), rgba(252, 165, 165, 0.6))",
-              border: "2px solid rgba(248, 113, 113, 0.3)",
+              background: "#FF6CAB",
+              border: "4px solid #2D3047",
+              boxShadow: "3px 3px 0 #2D3047",
               borderRadius: "12px",
-              fontWeight: 600,
+              fontWeight: 700,
+              fontSize: "15px",
+              padding: "12px 20px",
+              color: "#2D3047",
             }}
-            className="hover:scale-105 transition-all"
+            className="hover:translate-y-[-2px] hover:shadow-[4px_4px_0_#2D3047] active:translate-y-[1px] active:shadow-[2px_2px_0_#2D3047] transition-all"
           >
-            <Eraser size={16} />
-            Clear
+            <Eraser size={18} />
+            Clean Canvas 🧹
           </Button>
         </Tooltip>
 
-        <Tooltip content="Merge Videos from Selected Frame">
+        <Tooltip content="Combine all your videos into one awesome movie!">
           <Button
             variant="surface"
-            color="green"
             onClick={handleMergeVideos}
             disabled={isMerging}
             style={{
               cursor: isMerging ? "not-allowed" : "pointer",
-              background: isMerging 
-                ? "rgba(200, 200, 200, 0.6)"
-                : "linear-gradient(135deg, rgba(167, 243, 208, 0.6), rgba(52, 211, 153, 0.6))",
-              border: "2px solid rgba(52, 211, 153, 0.3)",
+              background: isMerging ? "#ccc" : "#FF8C42",
+              border: "4px solid #2D3047",
+              boxShadow: isMerging ? "2px 2px 0 #2D3047" : "3px 3px 0 #2D3047",
               borderRadius: "12px",
-              fontWeight: 600,
+              fontWeight: 700,
+              fontSize: "15px",
+              padding: "12px 20px",
+              color: "#2D3047",
+              opacity: isMerging ? 0.7 : 1,
             }}
-            className="hover:scale-105 transition-all"
+            className="hover:translate-y-[-2px] hover:shadow-[4px_4px_0_#2D3047] active:translate-y-[1px] active:shadow-[2px_2px_0_#2D3047] transition-all"
           >
-            {isMerging ? <Loader2 size={16} className="animate-spin" /> : <Video size={16} />}
-            {isMerging ? "Creating Magic..." : "Merge Videos"}
+            {isMerging ? <Loader2 size={18} className="animate-spin" /> : <Video size={18} />}
+            {isMerging ? "Making Magic... ✨" : "Make My Movie! 🎬"}
           </Button>
         </Tooltip>
       </Flex>

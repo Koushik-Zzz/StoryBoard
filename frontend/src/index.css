@@ -15,6 +15,13 @@
   --color-brand-purple: #9333ea;
   --color-brand-pink: #db2777;
   --font-ananda: "Ananda", sans-serif;
+  
+  /* Kid-Friendly Color Palette */
+  --color-solar-orange: #FF8C42;
+  --color-slime-green: #43D477;
+  --color-bubblegum-pink: #FF6CAB;
+  --color-soft-cream: #FFF9E3;
+  --color-deep-navy: #2D3047;
 }
 
 @layer components {
@@ -45,31 +52,20 @@ body.hide-handles .tl-handle {
 
 /* Tldraw Overrides - Grid with colorful dots */
 .tl-container {
-  --tl-grid: #c4b5fd;
-  --color-grid: #c4b5fd;
+  --tl-grid: #2D3047;
+  --color-grid: #2D3047;
 }
 
-/* Fun gradient background for the canvas */
+/* Soft Cream background with subtle dot grid pattern */
 .tl-background {
-  background: linear-gradient(
-    135deg,
-    #fef3c7 0%,      /* Warm yellow */
-    #fce7f3 25%,     /* Soft pink */
-    #e0e7ff 50%,     /* Light indigo */
-    #cffafe 75%,     /* Cyan tint */
-    #d9f99d 100%     /* Light lime */
-  ) !important;
-  background-size: 400% 400% !important;
-  animation: gradient-shift 15s ease infinite !important;
+  background-color: #FFF9E3 !important;
+  background-image: 
+    /* Subtle dot grid pattern */
+    radial-gradient(circle, #2D304720 1px, transparent 1px);
+  background-size: 24px 24px !important;
 }
 
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Decorative floating shapes overlay */
+/* Decorative corner stickers */
 .tl-background::before {
   content: '';
   position: absolute;
@@ -78,29 +74,12 @@ body.hide-handles .tl-handle {
   right: 0;
   bottom: 0;
   background-image: 
-    /* Stars */
-    radial-gradient(circle at 10% 20%, #fbbf24 3px, transparent 3px),
-    radial-gradient(circle at 85% 15%, #f472b6 4px, transparent 4px),
-    radial-gradient(circle at 45% 80%, #60a5fa 3px, transparent 3px),
-    radial-gradient(circle at 70% 60%, #a78bfa 4px, transparent 4px),
-    radial-gradient(circle at 25% 55%, #34d399 3px, transparent 3px),
-    radial-gradient(circle at 90% 85%, #fb923c 3px, transparent 3px),
-    radial-gradient(circle at 5% 75%, #f472b6 4px, transparent 4px),
-    radial-gradient(circle at 60% 25%, #fbbf24 3px, transparent 3px),
-    /* Clouds - bigger soft circles */
-    radial-gradient(ellipse 80px 50px at 15% 35%, rgba(255, 255, 255, 0.4), transparent),
-    radial-gradient(ellipse 100px 60px at 80% 70%, rgba(255, 255, 255, 0.35), transparent),
-    radial-gradient(ellipse 70px 45px at 50% 15%, rgba(255, 255, 255, 0.3), transparent),
-    radial-gradient(ellipse 90px 55px at 30% 85%, rgba(255, 255, 255, 0.35), transparent);
+    /* Corner stickers - subtle stars */
+    radial-gradient(circle at 5% 5%, #FF8C4240 8px, transparent 8px),
+    radial-gradient(circle at 95% 8%, #43D47740 6px, transparent 6px),
+    radial-gradient(circle at 92% 92%, #FF6CAB40 7px, transparent 7px),
+    radial-gradient(circle at 8% 88%, #FF8C4240 5px, transparent 5px);
   pointer-events: none;
-  animation: float-shapes 20s ease-in-out infinite;
-}
-
-@keyframes float-shapes {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  25% { transform: translateY(-10px) translateX(5px); }
-  50% { transform: translateY(-5px) translateX(-5px); }
-  75% { transform: translateY(-15px) translateX(3px); }
 }
 
 /* Make grid dots colorful and playful */
@@ -110,13 +89,11 @@ body.hide-handles .tl-handle {
 
 /* Modern Glass UI for Top Left Menu - Kid Friendly */
 .tlui-menu-zone {
-  background: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(255, 249, 227, 0.9) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
-  border: 2px solid rgba(167, 139, 250, 0.4) !important;
-  box-shadow: 
-    0 8px 32px rgba(167, 139, 250, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  border: 3px solid #2D3047 !important;
+  box-shadow: 4px 4px 0px #2D3047 !important;
   border-radius: 20px !important;
   margin: 12px !important;
   padding: 6px !important;
@@ -125,26 +102,75 @@ body.hide-handles .tl-handle {
 
 /* Frosted Glass for Style Panel - Kid Friendly */
 .tlui-style-panel {
-  background: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(255, 249, 227, 0.95) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
-  border: 2px solid rgba(244, 114, 182, 0.4) !important;
-  box-shadow: 
-    0 8px 32px rgba(244, 114, 182, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  border: 3px solid #2D3047 !important;
+  box-shadow: 4px 4px 0px #2D3047 !important;
   border-radius: 20px !important;
+}
+
+/* Move bottom toolbar to left middle */
+.tlui-layout__bottom {
+  position: fixed !important;
+  bottom: auto !important;
+  left: 24px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  right: auto !important;
+  width: auto !important;
+  height: auto !important;
+  grid-row: unset !important;
+  justify-content: flex-start !important;
+  pointer-events: none !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  z-index: 300 !important;
+}
+
+.tlui-layout__bottom__main {
+  width: auto !important;
+  flex-direction: column !important;
+}
+
+.tlui-layout__bottom > * {
+  pointer-events: auto !important;
+}
+
+/* Hide the toolbar extras (the horizontal line above) */
+.tlui-toolbar__extras {
+  display: none !important;
+}
+
+/* Make toolbar vertical */
+.tlui-toolbar {
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.tlui-toolbar__inner {
+  flex-direction: column !important;
+}
+
+.tlui-toolbar__left {
+  flex-direction: column !important;
 }
 
 /* Frosted Glass for Toolbar Container - Kid Friendly */
 .tlui-toolbar__tools {
-  background: rgba(255, 255, 255, 0.7) !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  padding: 8px !important;
+  background: rgba(255, 249, 227, 0.95) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
-  border: 2px solid rgba(96, 165, 250, 0.4) !important;
-  box-shadow: 
-    0 8px 32px rgba(96, 165, 250, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  border: 3px solid #2D3047 !important;
+  box-shadow: 4px 4px 0px #2D3047 !important;
   border-radius: 20px !important;
+}
+
+.tlui-toolbar__tools__list {
+  flex-direction: column !important;
 }
 
 /* Ensure buttons inside don't block the glass - Kid Friendly */
@@ -153,29 +179,36 @@ body.hide-handles .tl-handle {
   background: transparent !important;
   border: none !important;
   border-radius: 12px !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.1s ease !important;
+  color: #2D3047 !important;
 }
 
 .tlui-menu-zone .tlui-button:hover,
 .tlui-menu-zone .tlui-menu-button:hover {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.3), rgba(244, 114, 182, 0.3)) !important;
-  transform: scale(1.05) !important;
+  background: #FF8C42 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 3px 3px 0px #2D3047 !important;
 }
 
 /* Toolbar buttons - Kid Friendly */
 .tlui-toolbar__tools .tlui-button {
   border-radius: 12px !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.1s ease !important;
+  color: #2D3047 !important;
 }
 
 .tlui-toolbar__tools .tlui-button:hover {
-  background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(52, 211, 153, 0.3)) !important;
-  transform: scale(1.08) !important;
+  background: #43D477 !important;
+  color: white !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 3px 3px 0px #2D3047 !important;
 }
 
 .tlui-toolbar__tools .tlui-button[data-state="selected"] {
-  background: linear-gradient(135deg, rgba(167, 139, 250, 0.5), rgba(244, 114, 182, 0.5)) !important;
-  box-shadow: 0 2px 8px rgba(167, 139, 250, 0.3) !important;
+  background: #FF8C42 !important;
+  color: white !important;
+  box-shadow: 3px 3px 0px #2D3047 !important;
 }
 
 /* Hide Garbage and Copy icons from Top Left Menu */
@@ -245,19 +278,15 @@ button[data-testid="action.back-to-content"],
   height: auto !important;
   overflow: visible !important;
 
-  /* Kid Friendly Glass UI */
-  background: rgba(255, 255, 255, 0.7) !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
-  border: 2px solid rgba(52, 211, 153, 0.4) !important;
-  box-shadow: 
-    0 8px 32px rgba(52, 211, 153, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.8) inset !important;
+  /* Kid Friendly Sticker Style */
+  background: #43D477 !important;
+  border: 3px solid #2D3047 !important;
+  box-shadow: 4px 4px 0px #2D3047 !important;
   border-radius: 20px !important;
   padding: 8px 16px !important;
-  color: #000 !important;
-  font-weight: 600 !important;
-  transition: all 0.2s ease !important;
+  color: white !important;
+  font-weight: bold !important;
+  transition: all 0.1s ease !important;
 
   /* Position Fix */
   position: absolute !important;
@@ -270,15 +299,21 @@ button[data-testid="action.back-to-content"],
 
 .tlui-back-to-content:hover,
 *[class*="back-to-content"]:hover {
-  transform: scale(1.05) !important;
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.3), rgba(96, 165, 250, 0.3)) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 6px 6px 0px #2D3047 !important;
+}
+
+.tlui-back-to-content:active,
+*[class*="back-to-content"]:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0px 0px 0px #2D3047 !important;
 }
 
 /* Frame Loading Overlay - Kid Friendly */
 .frame-loading-overlay {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  background: linear-gradient(135deg, rgba(254, 243, 199, 0.5), rgba(252, 231, 243, 0.5), rgba(224, 231, 255, 0.5));
+  background: rgba(255, 249, 227, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -287,14 +322,13 @@ button[data-testid="action.back-to-content"],
 /* Generating Text Animation - Kid Friendly */
 .generating-text {
   font-size: 18px;
-  font-weight: 700;
-  color: #6d28d9;
+  font-weight: bold;
+  color: #2D3047;
   padding: 16px 28px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(252, 231, 243, 0.95));
-  border-radius: 16px;
-  box-shadow: 
-    0 4px 16px rgba(167, 139, 250, 0.3),
-    0 0 0 2px rgba(167, 139, 250, 0.2);
+  background: #FFF9E3;
+  border: 3px solid #2D3047;
+  border-radius: 20px;
+  box-shadow: 4px 4px 0px #2D3047;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -312,11 +346,121 @@ button[data-testid="action.back-to-content"],
 .generating-spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(139, 92, 246, 0.2);
-  border-top-color: #8b5cf6;
+  border: 3px solid rgba(45, 48, 71, 0.2);
+  border-top-color: #FF8C42;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-left: 8px;
+}
+
+/* ========================================
+   KID-FRIENDLY BUTTON CLASSES
+   ======================================== */
+
+/* Base kid button style - chunky sticker look */
+.kid-button {
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px 20px;
+  border: 4px solid #2D3047;
+  box-shadow: 3px 3px 0 #2D3047;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #2D3047;
+}
+
+.kid-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 0 #2D3047;
+}
+
+.kid-button:active {
+  transform: translateY(1px);
+  box-shadow: 2px 2px 0 #2D3047;
+}
+
+.kid-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 2px 2px 0 #2D3047;
+}
+
+/* Kid button color variants */
+.kid-button--orange {
+  background: #FF8C42;
+}
+
+.kid-button--pink {
+  background: #FF6CAB;
+}
+
+.kid-button--green {
+  background: #43D477;
+  color: white;
+}
+
+.kid-button--cream {
+  background: #FFF9E3;
+}
+
+/* Small variant */
+.kid-button--small {
+  font-size: 13px;
+  padding: 8px 14px;
+  border-width: 3px;
+  box-shadow: 2px 2px 0 #2D3047;
+}
+
+.kid-button--small:hover {
+  box-shadow: 3px 3px 0 #2D3047;
+}
+
+/* Large variant */
+.kid-button--large {
+  font-size: 18px;
+  padding: 16px 28px;
+  border-width: 5px;
+  box-shadow: 4px 4px 0 #2D3047;
+}
+
+.kid-button--large:hover {
+  box-shadow: 6px 6px 0 #2D3047;
+}
+
+/* Kid-friendly card/panel style */
+.kid-card {
+  background: #FFF9E3;
+  border: 3px solid #2D3047;
+  box-shadow: 4px 4px 0 #2D3047;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* Kid-friendly input style */
+.kid-input {
+  background: white;
+  border: 3px solid #2D3047;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #2D3047;
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+.kid-input:focus {
+  box-shadow: 3px 3px 0 #2D3047;
+  transform: translateY(-1px);
+}
+
+.kid-input::placeholder {
+  color: #2D304780;
 }
 
 /* video editor */

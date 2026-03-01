@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   useEditor,
   useValue,
@@ -640,12 +641,11 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
     }
   };
 
-  const frameHeight = "h" in frame.props ? (frame.props.h as number) : 540;
   const frameWidth = "w" in frame.props ? (frame.props.w as number) : 960;
 
   // Scale text box based on frame dimensions
-  const textBoxWidth = Math.max(frameWidth, 600);
-  const fontSize = Math.max(16, Math.min(frameWidth * 0.02, 20));
+  const textBoxWidth = Math.min(Math.max(frameWidth, 600), 800);
+  const fontSize = 16;
 
   const handleExecuteAction = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
@@ -658,29 +658,19 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
 
   const isLoading = isImproving || isGenerating;
 
-  return (
-    <>
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleImageUpload}
-        onClick={(e) => e.stopPropagation()}
-      />
-
-      {/* Gemini-style prompt area below frame */}
-      {showTextBox && (
-        <div
-          className="absolute pointer-events-auto z-50"
-          style={{
-            top: `${frameHeight + 24}px`,
-            left: "50%",
-            transform: "translateX(-50%)",
-          }}
-          onPointerDown={(e) => e.stopPropagation()}
-        >
+  // Chat box rendered via portal to escape tldraw's transform context
+  const chatBox = showTextBox ? createPortal(
+    <div
+      className="pointer-events-auto"
+      style={{
+        position: "fixed",
+        bottom: "24px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 9999,
+      }}
+      onPointerDown={(e) => e.stopPropagation()}
+    >
           <div
             className="bg-white rounded-2xl shadow-lg flex flex-col border border-gray-200"
             style={{
@@ -806,8 +796,22 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>,
+    document.body
+  ) : null;
+
+  return (
+    <>
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleImageUpload}
+        onClick={(e) => e.stopPropagation()}
+      />
+      {chatBox}
     </>
   );
 };
