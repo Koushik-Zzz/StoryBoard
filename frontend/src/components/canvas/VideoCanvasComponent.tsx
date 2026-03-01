@@ -55,11 +55,7 @@ const FrameOverlay = ({ shapeId }: { shapeId: string }) => {
     >
       <span className="generating-text">
         Generating
-        <span className="generating-dots">
-          <span className="generating-dot"></span>
-          <span className="generating-dot"></span>
-          <span className="generating-dot"></span>
-        </span>
+        <span className="generating-spinner"></span>
       </span>
     </div>,
     tldrawContainer || document.body,

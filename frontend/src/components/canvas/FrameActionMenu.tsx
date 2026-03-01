@@ -12,27 +12,26 @@ import { toast } from "sonner";
 import { useGlobalContext } from "../../hooks/useGlobalContext";
 import { apiFetch } from "../../utils/api";
 import { useFrameGraphContext } from "../../contexts/FrameGraphContext";
-import { Tooltip, Button, Flex, TextField } from "@radix-ui/themes";
 import {
   Sparkles,
-  Image as ImageIcon,
-  Palette,
-  Type,
-  Banana,
+  Plus,
+  ChevronDown,
   Loader2,
-  Lock,
-  Unlock,
+  Send,
+  Wand2,
 } from "lucide-react";
 
 export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
   const editor = useEditor();
   const { context } = useGlobalContext("global-context");
   const frameGraph = useFrameGraphContext(); // May be null during SVG export
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [nameValue, setNameValue] = useState("");
   const [promptText, setPromptText] = useState("");
   const [isImproving, setIsImproving] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<"generate" | "improve">("generate");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const isSelected = useValue(
     "is selected",
@@ -59,6 +58,17 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
     }
   }, [frame?.id]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Persist promptText to frame meta with debounce to prevent infinite loops
   useEffect(() => {
     if (!frame || promptText === (frame.meta?.promptText || "")) {
@@ -83,24 +93,7 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
 
   if (!frame) return null;
 
-  const showToolbar = isSelected;
   const showTextBox = isSelected || promptText.trim() !== "";
-
-  const handleBackgroundColorChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    e.stopPropagation();
-    editor.updateShapes([
-      {
-        id: shapeId,
-        type: "aspect-frame",
-        props: {
-          ...frame.props,
-          backgroundColor: e.target.value,
-        },
-      },
-    ]);
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -461,34 +454,6 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
     }
   };
 
-  const handleNameClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const currentName =
-      "name" in frame.props ? (frame.props.name as string) : "16:9 Frame";
-    setNameValue(currentName);
-    setIsEditingName(true);
-  };
-
-  const handleNameSubmit = (e: React.FormEvent) => {
-    e.stopPropagation();
-    editor.updateShapes([
-      {
-        id: shapeId,
-        type: "aspect-frame",
-        props: {
-          ...frame.props,
-          name: nameValue || "16:9 Frame",
-        },
-      },
-    ]);
-    setIsEditingName(false);
-  };
-
-  const handleNameCancel = () => {
-    setIsEditingName(false);
-    setNameValue("");
-  };
-
   // Count arrows that start from this frame (for tree branching)
   const getExistingBranchCount = (frameId: TLShapeId): number => {
     const bindings = editor.getBindingsToShape(frameId, "arrow");
@@ -503,6 +468,8 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
 
     const currentFrame = editor.getShape(shapeId);
     if (!currentFrame) return;
+
+    setIsGenerating(true);
 
     // Deselect to avoid capturing toolbar
     editor.selectNone();
@@ -663,248 +630,181 @@ export const FrameActionMenu = ({ shapeId }: { shapeId: TLShapeId }) => {
 
         // Log the graph map
       }
+      setIsGenerating(false);
     } catch (error) {
       console.error("Failed to generate video:", error);
       toast.error(
         error instanceof Error ? error.message : "Failed to generate video"
       );
+      setIsGenerating(false);
     }
   };
 
-  const backgroundColor =
-    "backgroundColor" in frame.props
-      ? (frame.props.backgroundColor as string)
-      : "#ffffff";
   const frameHeight = "h" in frame.props ? (frame.props.h as number) : 540;
   const frameWidth = "w" in frame.props ? (frame.props.w as number) : 960;
-  const isLocked =
-    "isLocked" in frame.props ? (frame.props.isLocked as boolean) : false;
 
   // Scale text box based on frame dimensions
-  const textBoxWidth = frameWidth;
-  const fontSize = Math.max(14, Math.min(frameWidth * 0.025, 24));
+  const textBoxWidth = Math.max(frameWidth, 600);
+  const fontSize = Math.max(16, Math.min(frameWidth * 0.02, 20));
 
-  const handleToggleLock = (e: React.MouseEvent) => {
+  const handleExecuteAction = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
-    editor.updateShapes([
-      {
-        id: shapeId,
-        type: "aspect-frame",
-        props: {
-          ...frame.props,
-          isLocked: !isLocked,
-        },
-      },
-    ]);
+    if (selectedAction === "improve") {
+      handleImprove(e as React.MouseEvent);
+    } else {
+      handleGenerate(e as React.MouseEvent);
+    }
   };
+
+  const isLoading = isImproving || isGenerating;
 
   return (
     <>
-      {/* Toolbar above frame */}
-      {showToolbar && (
-        <div
-          className="absolute -top-28 left-1/2 -translate-x-1/2 pointer-events-auto z-50"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <Flex
-            gap="5"
-            p="5"
-            className="bg-white rounded-lg shadow-lg border border-gray-200"
-            align="center"
-          >
-            {/* Name Frame */}
-            {isEditingName ? (
-              <form onSubmit={handleNameSubmit}>
-                <TextField.Root
-                  size="3"
-                  value={nameValue}
-                  onChange={(e) => setNameValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Escape") {
-                      handleNameCancel();
-                    } else if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleNameSubmit(e as any);
-                    }
-                  }}
-                  onBlur={handleNameCancel}
-                  autoFocus
-                  style={{ width: "500px", fontSize: "16px" }}
-                />
-              </form>
-            ) : (
-              <Tooltip content="Name Frame">
-                <Button
-                  variant="soft"
-                  size="3"
-                  onClick={handleNameClick}
-                  style={{
-                    cursor: "pointer",
-                    minWidth: "48px",
-                    minHeight: "48px",
-                  }}
-                >
-                  <Type size={40} />
-                </Button>
-              </Tooltip>
-            )}
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleImageUpload}
+        onClick={(e) => e.stopPropagation()}
+      />
 
-            {/* Background Color */}
-            <Tooltip content="Change Background">
-              <Button
-                variant="soft"
-                size="3"
-                style={{
-                  cursor: "pointer",
-                  minWidth: "48px",
-                  minHeight: "48px",
-                }}
-                onClick={() => {
-                  const input = document.createElement("input");
-                  input.type = "color";
-                  input.value = backgroundColor;
-                  input.onchange = (e) => {
-                    const target = e.target as HTMLInputElement;
-                    handleBackgroundColorChange({
-                      target,
-                      stopPropagation: () => {},
-                    } as any);
-                  };
-                  input.click();
-                }}
-              >
-                <Palette size={40} />
-              </Button>
-            </Tooltip>
-
-            {/* Upload Image */}
-            <Tooltip content="Upload Image to Frame">
-              <div style={{ position: "relative", display: "inline-block" }}>
-                <Button
-                  variant="soft"
-                  size="3"
-                  style={{
-                    cursor: "pointer",
-                    minWidth: "48px",
-                    minHeight: "48px",
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  <ImageIcon size={40} />
-                </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    opacity: 0,
-                    cursor: "pointer",
-                    pointerEvents: "none",
-                  }}
-                  onChange={handleImageUpload}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              </div>
-            </Tooltip>
-
-            {/* Generate Next Frame */}
-            <Tooltip content="Generate Next Frame">
-              <Button
-                variant="soft"
-                color="indigo"
-                size="3"
-                onClick={handleGenerate}
-                style={{
-                  cursor: "pointer",
-                  minWidth: "48px",
-                  minHeight: "48px",
-                }}
-              >
-                <Sparkles size={40} />
-              </Button>
-            </Tooltip>
-
-            {/* Improve Frame */}
-            <Tooltip content="Improve Frame">
-              <Button
-                variant="soft"
-                size="3"
-                onClick={handleImprove}
-                disabled={isImproving}
-                style={{
-                  cursor: isImproving ? "not-allowed" : "pointer",
-                  minWidth: "48px",
-                  minHeight: "48px",
-                  opacity: isImproving ? 0.6 : 1,
-                }}
-              >
-                {isImproving ? (
-                  <Loader2 size={40} className="animate-spin" />
-                ) : (
-                  <Banana size={40} />
-                )}
-              </Button>
-            </Tooltip>
-
-            {/* Lock/Unlock Content */}
-            <Tooltip content={isLocked ? "Unlock Content" : "Lock Content"}>
-              <Button
-                variant="soft"
-                size="3"
-                onClick={handleToggleLock}
-                style={{
-                  cursor: "pointer",
-                  minWidth: "48px",
-                  minHeight: "48px",
-                }}
-              >
-                {isLocked ? <Lock size={40} /> : <Unlock size={40} />}
-              </Button>
-            </Tooltip>
-          </Flex>
-        </div>
-      )}
-
-      {/* Prompt text box below frame */}
+      {/* Gemini-style prompt area below frame */}
       {showTextBox && (
         <div
           className="absolute pointer-events-auto z-50"
           style={{
-            top: `${frameHeight + 20}px`,
+            top: `${frameHeight + 24}px`,
             left: "50%",
             transform: "translateX(-50%)",
           }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           <div
-            className="bg-white rounded-full shadow-xl flex items-center border border-gray-100"
+            className="bg-white rounded-2xl shadow-lg flex flex-col border border-gray-200"
             style={{
               width: `${textBoxWidth}px`,
-              padding: "12px 24px",
+              padding: "12px 16px",
             }}
           >
-            <input
-              type="text"
+            {/* Textarea */}
+            <textarea
               value={promptText}
               onChange={(e) => setPromptText(e.target.value)}
               placeholder="Describe your image..."
-              className="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400"
-              style={{ fontSize: `${fontSize}px` }}
+              className="w-full bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 resize-none"
+              style={{ 
+                fontSize: `${fontSize}px`, 
+                minHeight: "80px",
+                lineHeight: "1.5",
+              }}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleGenerate(e as any);
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleExecuteAction(e);
                 }
               }}
               onClick={(e) => e.stopPropagation()}
             />
+
+            {/* Bottom toolbar */}
+            <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+              {/* Left side - Upload button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  fileInputRef.current?.click();
+                }}
+                className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition-colors"
+                title="Upload image"
+              >
+                <Plus size={20} className="text-gray-500" />
+              </button>
+
+              {/* Right side - Action dropdown + Send */}
+              <div className="flex items-center gap-2">
+                {/* Dropdown for action selection */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsDropdownOpen(!isDropdownOpen);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                    style={{ fontSize: `${fontSize - 2}px` }}
+                  >
+                    {selectedAction === "improve" ? (
+                      <>
+                        <Wand2 size={16} className="text-purple-500" />
+                        <span className="text-gray-700">Improve Image</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={16} className="text-indigo-500" />
+                        <span className="text-gray-700">Generate Next</span>
+                      </>
+                    )}
+                    <ChevronDown size={14} className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown menu */}
+                  {isDropdownOpen && (
+                    <div
+                      className="absolute bottom-full mb-2 right-0 bg-white rounded-xl shadow-xl border border-gray-200 py-1 min-w-[200px] z-50"
+                      style={{ fontSize: `${fontSize - 2}px` }}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedAction("improve");
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${selectedAction === "improve" ? "bg-purple-50" : ""}`}
+                      >
+                        <Wand2 size={18} className="text-purple-500" />
+                        <span className="text-gray-700">Improve Image</span>
+                        {selectedAction === "improve" && (
+                          <span className="ml-auto text-purple-500">✓</span>
+                        )}
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedAction("generate");
+                          setIsDropdownOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left ${selectedAction === "generate" ? "bg-indigo-50" : ""}`}
+                      >
+                        <Sparkles size={18} className="text-indigo-500" />
+                        <span className="text-gray-700">Generate Next Scene</span>
+                        {selectedAction === "generate" && (
+                          <span className="ml-auto text-indigo-500">✓</span>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Send button */}
+                <button
+                  onClick={handleExecuteAction}
+                  disabled={isLoading}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    selectedAction === "improve" 
+                      ? "bg-purple-500 hover:bg-purple-600" 
+                      : "bg-indigo-500 hover:bg-indigo-600"
+                  }`}
+                  title={selectedAction === "improve" ? "Improve image" : "Generate next scene"}
+                >
+                  {isLoading ? (
+                    <Loader2 size={20} className="text-white animate-spin" />
+                  ) : (
+                    <Send size={20} className="text-white" />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

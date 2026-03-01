@@ -121,15 +121,11 @@ export const ArrowActionMenu = () => {
             >
               <div
                 className="generating-text"
-                style={{ minWidth: "220px", whiteSpace: "nowrap" }}
+                style={{ minWidth: "180px", whiteSpace: "nowrap" }}
               >
                 <span>Creating Magic</span>
-                <span className="generating-dots">
-                  <span className="generating-dot"></span>
-                  <span className="generating-dot"></span>
-                  <span className="generating-dot"></span>
-                </span>
-                <span className="ml-2 text-sm opacity-70">{arrowInfo.timer || 0}s</span>
+                <span className="generating-spinner"></span>
+                <span className="ml-3 text-sm opacity-70">{arrowInfo.timer || 0}s</span>
               </div>
             </div>
           );
